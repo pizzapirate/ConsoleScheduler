@@ -24,6 +24,21 @@ namespace ConsoleScheduler
             else { return false; }
         }
         /// <summary>
+        /// Checks if the current day of the week is a scheduled day.
+        /// </summary>
+        /// <param name="scheduledDays"></param>
+        /// <returns></returns>
+        public static bool ScheduledDayCheck(DailySchedule schedule)
+        {
+            DateTime now = DateTime.Now;
+            // Retrieves the current day of the week in three letters, the first of which being capital. 
+            string currentShortDayName = now.DayOfWeek.ToString().Remove(3);
+
+            // Check if the currentShortDayName exists in the schedule array
+            if (schedule.Days.Contains(currentShortDayName)) { return true; }
+            else { return false; }
+        }
+        /// <summary>
         /// Checks if the current hour is within the scheduled hours to run.
         /// </summary>
         /// <param name="scheduledDays"></param>
@@ -33,6 +48,21 @@ namespace ConsoleScheduler
             DateTime now = DateTime.Now;
             TimeOnly currentTime = TimeOnly.FromDateTime(now);
             if (currentTime >= schedule.StartTime && currentTime <= schedule.EndTime)
+            {
+                return true;
+            }
+            else { return false; }
+        }
+        /// <summary>
+        /// Checkes if the current time is the scheduled run time.
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <returns></returns>
+        public static bool ScheduledTimeCheck(DailySchedule schedule)
+        {
+            DateTime now = DateTime.Now;
+            TimeOnly currentTime = TimeOnly.FromDateTime(now);
+            if (currentTime.Minute == schedule.Time.Minute && currentTime.Second == schedule.Time.Second)
             {
                 return true;
             }

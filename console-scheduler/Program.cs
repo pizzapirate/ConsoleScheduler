@@ -4,21 +4,37 @@
 static void TaskToSchedule()
 {
     // Inset code here to be carried out for the schedule
+
+    // Path to test application to open, Google Chrome
+    // "C:\Program Files\Google\Chrome\Application\chrome.exe"
+    //string exePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+    //System.Diagnostics.Process.Start(exePath);
+
     Console.WriteLine("Task just completed @ " + TimeOnly.FromDateTime(DateTime.Now));
 }
 
 // Next, create a schedule for the function: 
 
-M2MSchedule schedule = new();
+M2MSchedule m2mSchedule = new();
 
-schedule.Days = new string[] {"Mon","Tue","Wed","Thu","Fri"};
-schedule.StartTime = new(08, 30, 00);
-schedule.EndTime = new(17, 00, 00);
-schedule.Interval = 1;
+m2mSchedule.Days = new string[] {"Mon","Tue","Wed","Thu","Fri"};
+m2mSchedule.StartTime = new(08, 30, 00);
+m2mSchedule.EndTime = new(17, 00, 00);
+m2mSchedule.Interval = 1;
 
-// Set the schedule
+// or
 
-M2MSchedule.CreateTask(schedule, TaskToSchedule);
+DailySchedule dailySchedule = new();
+dailySchedule.Days = new string[] { "Mon","Tue","Wed","Thu","Fri"};
+dailySchedule.Time = new(16, 24, 00);
+
+// Set the schedule - only one can be set at a time. 
+
+// M2MSchedule.CreateTask(m2mSchedule, TaskToSchedule);
+
+// or
+
+DailySchedule.CreateTask(dailySchedule, TaskToSchedule);
 
 #region PROTOTYPE CODE
 

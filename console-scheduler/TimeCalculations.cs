@@ -8,6 +8,11 @@ namespace ConsoleScheduler
 {
     public class TimeCalculations
     {   
+        /// <summary>
+        /// Calculates the amount of milliseconds until the next scheduled interval
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <returns></returns>
         public static TimeSpan MsTillNextInterval(M2MSchedule schedule)
         {
             TimeOnly currentTime = TimeOnly.FromDateTime(DateTime.Now);
@@ -16,12 +21,33 @@ namespace ConsoleScheduler
             TimeSpan difference = nowPlusInterval - currentTime;
             return difference;
         }
+        /// <summary>
+        /// Calculates the amount of milliseconds until the next scheduled hour
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <returns></returns>
         public static TimeSpan MsTillNextScheduledHour(M2MSchedule schedule)
         {
             TimeOnly currentTime = TimeOnly.FromDateTime(DateTime.Now);
             TimeSpan difference = schedule.StartTime - currentTime;
             return difference;
         }
+        /// <summary>
+        /// Calculates the amount of milliseconds until the next scheduled run time
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <returns></returns>
+        public static TimeSpan MsTillNextScheduledTime(DailySchedule schedule)
+        {
+            TimeOnly currentTime = TimeOnly.FromDateTime(DateTime.Now);
+            TimeSpan difference = schedule.Time - currentTime;
+            return difference;
+        }
+        /// <summary>
+        /// Calculates the amount of milliseconds until the next scheduled day including the start time
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <returns></returns>
         public static TimeSpan MsTillNextScheduledDay(M2MSchedule schedule)
         {
             List<int> scheduledDays = new();
@@ -31,7 +57,7 @@ namespace ConsoleScheduler
                 scheduledDays.Add(dayOfWeekAsNum);
             }
 
-            // now, order the scheduled days by number in ascending order (small to big)
+            // Now, order the scheduled days by number in ascending order (small to big)
             scheduledDays.Sort();
 
             // Now find currentDay's number
@@ -57,6 +83,53 @@ namespace ConsoleScheduler
                                          dateOfNextRun.Day,
                                          schedule.StartTime.Hour,
                                          schedule.StartTime.Minute,
+                                         00);
+
+            TimeSpan difference = nextScheduledStart - DateTime.Now;
+            return difference;
+        }
+        /// <summary>
+        /// Calculates the amount of milliseconds until the next scheduled day and time
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <returns></returns>
+        public static TimeSpan MsTillNextScheduledTimeAndDay(DailySchedule schedule)
+        {
+            List<int> scheduledDays = new();
+            foreach (var day in schedule.Days)
+            {
+                int dayOfWeekAsNum = Convert.ToInt16(GetDayOfWeekNumber(day));
+                scheduledDays.Add(dayOfWeekAsNum);
+            }
+
+            // Now, order the scheduled days by number in ascending order (small to big)
+            scheduledDays.Sort();
+
+            // Now find currentDay's number
+            string currentShortDayName = DateTime.Now.DayOfWeek.ToString().Remove(3);
+            int currentDayNumber = Convert.ToInt16(GetDayOfWeekNumber(currentShortDayName));
+
+            int? nearestScheduledDay;
+            int daysUntilNextRun = 0;
+            try
+            {
+                nearestScheduledDay = scheduledDays.Where(x => x > currentDayNumber).First();
+                daysUntilNextRun = Convert.ToInt32(nearestScheduledDay) - currentDayNumber;
+            }
+            catch { nearestScheduledDay = null; }
+            if (!nearestScheduledDay.HasValue)
+            {
+                nearestScheduledDay = scheduledDays.Where(x => x > 0).First();
+                daysUntilNextRun = Convert.ToInt32(nearestScheduledDay) - (currentDayNumber - 7);
+            }
+
+            // Now create a new datetime object which is currentDateTime.days + daysUntilNextRun and then change .time to schedule.startTime
+            DateOnly dateOfNextRun = DateOnly.FromDateTime(DateTime.Now.AddDays(daysUntilNextRun));
+            DateTime nextScheduledStart = new(dateOfNextRun.Year,
+                                         dateOfNextRun.Month,
+                                         dateOfNextRun.Day,
+                                         schedule.Time.Hour,
+                                         schedule.Time.Minute,
                                          00);
 
             TimeSpan difference = nextScheduledStart - DateTime.Now;
